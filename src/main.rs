@@ -1,7 +1,13 @@
+mod linux;
+mod windows;
+
 use serde::Deserialize;
 use reqwest::Error;
 use tokio::*;
 use std::env::consts;
+use crate::linux::handle_linux;
+use linux::*;
+use windows::*;
 
 #[derive(Deserialize, Debug)]
 struct RawDistro {
@@ -26,6 +32,12 @@ async fn main() -> Result<(), Error> {
     let distros: RawDistro = response.json().await?;
 
     println!("{:?}", distros);
-    println!("{}", std::env::consts::OS);
+
+    match std::env::consts::OS {
+        "linux" => handle_linux(),
+        "windows" => handle_windows(),
+        &_ => return Ok(())
+    }
+
     Ok(())
 }
