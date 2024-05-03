@@ -1,5 +1,5 @@
 use std::fs;
-use InfiniFetch::RenderData;
+use crate::RenderData;
 
 pub fn handle_windows()->RenderData{
     println!("detected windows!");

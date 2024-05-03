@@ -4,15 +4,15 @@ use serde::Deserialize;
 
 #[derive(Deserialize, Debug)]
 pub struct RawDistro {
-    id: String,
-    identifier: String,
-    name: String,
-    description: String,
-    distrowatch_page: String,
-    image_path: String,
-    homepage: String,
-    light_badge_path: String,
-    dark_badge_path: String,
+    pub id: String,
+    pub identifier: String,
+    pub name: String,
+    pub description: String,
+    pub distrowatch_page: String,
+    pub image_path: String,
+    pub homepage: String,
+    pub light_badge_path: String,
+    pub dark_badge_path: String,
 }
 
 pub struct RenderData{
