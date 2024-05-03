@@ -6,6 +6,7 @@ version = 3
 name = "InfiniFetch"
 version = "0.1.0"
 dependencies = [
+ "cpuid",
  "inline_colorization",
  "os-version",
  "reqwest",
@@ -118,6 +119,15 @@ name = "core-foundation-sys"
 version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "06ea2b9bc92be3c2baa9334a323ebca2d6f074ff852cd1d7b11064035cd3868f"
+
+[[package]]
+name = "cpuid"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a0c4b055219ace68cabfbb8071c4aad068565d11b67e092e151b17b9fd3bdba9"
+dependencies = [
+ "libc",
+]
 
 [[package]]
 name = "deranged"
