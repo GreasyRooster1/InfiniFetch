@@ -16,9 +16,14 @@ pub struct RawDistro {
 }
 
 pub struct RenderData{
-    //todo: cpu, gpu, ram, other specs
+    //todo: gpu, ram, other specs
     pub(crate) icon_text:String,
+
     pub(crate) distro_name:String,
+
+    pub(crate) cpu_name:String,
+    pub(crate) cpu_speed:String,
+    pub(crate) cpu_cores:String,
 }
 
 pub async fn get_distro(distro_name:&str)->Result<(),Error>{
