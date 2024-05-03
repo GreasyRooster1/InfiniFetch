@@ -1,3 +1,4 @@
+use reqwest::Error;
 use serde::Deserialize;
 
 
@@ -14,7 +15,7 @@ struct RawDistro {
     dark_badge_path: String,
 }
 
-pub async fn get_distro(distro_name:str){
+pub async fn get_distro(distro_name:&str)->Result<(),Error>{
     let request_url = format!("https://distro-api.up.railway.app/distribution?identifier={0}",distro_name);
     println!("requesting from {}", request_url);
 
@@ -23,4 +24,6 @@ pub async fn get_distro(distro_name:str){
     let raw_distro: RawDistro = response.json().await?;
 
     println!("{:?}", raw_distro);
+
+    Ok(())
 }
