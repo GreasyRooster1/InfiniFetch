@@ -15,6 +15,12 @@ struct RawDistro {
     dark_badge_path: String,
 }
 
+struct RenderData{
+    //todo: cpu, gpu, ram, other specs
+    icon_text:String,
+    distro_name:String,
+}
+
 pub async fn get_distro(distro_name:&str)->Result<(),Error>{
     let request_url = format!("https://distro-api.up.railway.app/distribution?identifier={0}",distro_name);
     println!("requesting from {}", request_url);
