@@ -3,7 +3,7 @@ use serde::Deserialize;
 
 
 #[derive(Deserialize, Debug)]
-struct RawDistro {
+pub struct RawDistro {
     id: String,
     identifier: String,
     name: String,
@@ -15,10 +15,10 @@ struct RawDistro {
     dark_badge_path: String,
 }
 
-struct RenderData{
+pub struct RenderData{
     //todo: cpu, gpu, ram, other specs
-    icon_text:String,
-    distro_name:String,
+    pub(crate) icon_text:String,
+    pub(crate) distro_name:String,
 }
 
 pub async fn get_distro(distro_name:&str)->Result<(),Error>{

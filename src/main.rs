@@ -16,7 +16,7 @@ use lib::*;
 async fn main() -> Result<(), Error> {
 
     //check os type
-    match consts::OS {
+    let render_data:RenderData = match consts::OS {
         "linux" => handle_linux(),
         "windows" => handle_windows(),
         &_ => return Ok(())
