@@ -1,6 +1,7 @@
 use serde::Deserialize;
 use reqwest::Error;
 use tokio::*;
+use std::env::consts;
 
 #[derive(Deserialize, Debug)]
 struct RawDistro {
@@ -25,5 +26,6 @@ async fn main() -> Result<(), Error> {
     let distros: RawDistro = response.json().await?;
 
     println!("{:?}", distros);
+    println!("{}", std::env::consts::OS);
     Ok(())
 }
