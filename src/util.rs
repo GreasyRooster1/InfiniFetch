@@ -1,6 +1,7 @@
+use std::ptr::null;
 use reqwest::Error;
 use serde::Deserialize;
-use cpuid::*;
+extern crate cpuid;
 
 #[derive(Deserialize, Debug)]
 pub struct RawDistro {
@@ -39,13 +40,9 @@ pub async fn get_distro(distro_name:&str)->Result<(),Error>{
 
     Ok(())
 }
-
-pub trait GetCPU{
-    fn get_cpu_info(mut self);
-}
-impl GetCPU for RenderData{
-    fn get_cpu_info(mut self) {
-        match identify() {
+impl RenderData{
+    pub(crate) fn get_cpu_info(mut self) -> RenderData  where Self: Sized {
+        match cpuid::identify() {
             Ok(info) => {
                 println!("Found: {} CPU, model: {}", info.vendor, info.codename);
                 self.cpu_name = info.brand;
@@ -53,7 +50,8 @@ impl GetCPU for RenderData{
             },
             Err(err) => println!("cpuid error: {}", err),
         };
-        let clock_freq = clock_frequency().unwrap_or_else(|| 0);
+        let clock_freq = cpuid::clock_frequency().unwrap_or_else(|| 0);
         self.cpu_speed = clock_freq.to_string();
+        self
     }
 }

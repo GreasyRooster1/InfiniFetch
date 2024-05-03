@@ -1,6 +1,5 @@
 use std::fs;
 use crate::RenderData;
-use crate::util::get_cpu_info;
 
 pub fn handle_linux()->RenderData{
     println!("detected linux!");

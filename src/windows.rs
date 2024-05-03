@@ -22,8 +22,7 @@ pub fn handle_windows()->RenderData{
         }
     };
 
-    RenderData{
-        icon_text: "".to_string(),
-        distro_name: format!("Windows {0}",windows.version),
-    }
+    let mut render_data:RenderData = Default::default();
+    render_data.distro_name = format!("Windows {}",windows.version);
+    render_data
 }
