@@ -22,7 +22,7 @@ async fn main() -> Result<(), Error> {
 
     let response = reqwest::get(&request_url).await?;
 
-    let distros: Vec<RawDistro> = response.json().await?;
+    let distros: RawDistro = response.json().await?;
 
     println!("{:?}", distros);
     Ok(())
