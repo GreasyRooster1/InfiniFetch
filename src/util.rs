@@ -1,7 +1,9 @@
 use std::ptr::null;
 use reqwest::Error;
 use serde::Deserialize;
-extern crate cpuid;
+use sysinfo::{
+    Components, Disks, Networks, System,
+};
 
 #[derive(Deserialize, Debug)]
 pub struct RawDistro {
@@ -42,16 +44,10 @@ pub async fn get_distro(distro_name:&str)->Result<(),Error>{
 }
 impl RenderData{
     pub(crate) fn get_cpu_info(mut self) -> RenderData  where Self: Sized {
-        match cpuid::identify() {
-            Ok(info) => {
-                println!("Found: {} CPU, model: {}", info.vendor, info.codename);
-                self.cpu_name = info.brand;
-                self.cpu_cores = info.num_cores.to_string();
-            },
-            Err(err) => println!("cpuid error: {}", err),
-        };
-        let clock_freq = cpuid::clock_frequency().unwrap_or_else(|| 0);
-        self.cpu_speed = clock_freq.to_string();
+        let mut sys = System::new_all();
+        sys.refresh_all();
+        self.cpu_speed = sys.cpus().first().unwrap().frequency().to_string();
+        self.cpu_speed = sys.cpus().first().unwrap().frequency().to_string();
         self
     }
 }
