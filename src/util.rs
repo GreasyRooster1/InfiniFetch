@@ -27,7 +27,7 @@ pub struct RenderData{
 
     pub(crate) cpu_name:String,
     pub(crate) cpu_speed:String,
-    pub(crate) cpu_cores:String,
+    pub(crate) cpu_brand:String,
 }
 
 pub async fn get_distro(distro_name:&str)->Result<(),Error>{
@@ -47,7 +47,8 @@ impl RenderData{
         let mut sys = System::new_all();
         sys.refresh_all();
         self.cpu_speed = sys.cpus().first().unwrap().frequency().to_string();
-        self.cpu_speed = sys.cpus().first().unwrap().frequency().to_string();
+        self.cpu_name = sys.cpus().first().unwrap().vendor_id().to_string();
+        self.cpu_brand = sys.cpus().first().unwrap().brand().to_string();
         self
     }
 }
