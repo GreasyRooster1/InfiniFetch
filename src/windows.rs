@@ -2,6 +2,7 @@ use std::fs;
 use crate::RenderData;
 use os_version;
 use os_version::{detect, OsVersion};
+use crate::render::render;
 
 pub fn handle_windows()->RenderData{
     println!("detected windows!");
@@ -25,7 +26,6 @@ pub fn handle_windows()->RenderData{
     let mut render_data:RenderData = Default::default();
     render_data = render_data.setup();
     render_data.distro_name = format!("Windows {}",windows.version);
-    render_data = render_data.get_cpu_info();
-    render_data = render_data.get_memory_info();
+    render_data = render_data.get_info();
     return render_data
 }

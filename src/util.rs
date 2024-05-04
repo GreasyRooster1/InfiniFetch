@@ -97,6 +97,12 @@ impl RenderData{
         ];
         (names,data)
     }
+    pub(crate) fn get_info(mut self) -> RenderData  where Self: Sized {
+        let mut tmp = self.get_cpu_info();
+        tmp = tmp.get_memory_info();
+
+        tmp
+    }
     pub(crate) fn get_cpu_info(mut self) -> RenderData  where Self: Sized {
         self.sys.refresh_all();
         self.cpu_name = self.sys.cpus().first().unwrap().vendor_id().to_string();
