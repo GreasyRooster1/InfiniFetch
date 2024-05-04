@@ -1,14 +1,18 @@
 use crate::RenderData;
 use inline_colorization::*;
+use sysinfo::System;
 
 const ICON_SIZE:i32 = 32;
+
 pub fn render(data:RenderData){
-    let (prefix_lines,data_lines) = data.create_render_vecs();
+    let (prefix_lines,data_lines,options) = data.create_render_vecs();
     for i in 0..ICON_SIZE as usize{
         if i >= data_lines.len() {
             continue;
         }
-        render_line(i as i32,prefix_lines[i],data_lines[i]);
+        if options[i] {
+            render_line(i as i32, prefix_lines[i], data_lines[i]);
+        }
     }
 }
 

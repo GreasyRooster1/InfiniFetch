@@ -21,7 +21,6 @@ pub struct RawDistro {
 
 #[derive(Default)]
 pub struct RenderData{
-    //todo: gpu, ram, other specs
     pub(crate) sys:System,
 
     pub(crate) icon_text:String,
@@ -83,7 +82,7 @@ impl RenderData{
         self.sys.refresh_all();
         self
     }
-    pub(crate) fn create_render_vecs(&self)->(Vec<&str>,Vec<&str>){
+    pub(crate) fn create_render_vecs(&self)->(Vec<&str>,Vec<&str>,Vec<bool>){
         let names = vec![
             "Operating System",
 
@@ -120,7 +119,11 @@ impl RenderData{
             self.gpu_name.as_str(),
             self.gpu_memory.as_str(),
         ];
-        (names,data)
+        let mut options:Vec<bool> = vec![];
+        for d in data.clone(){
+            options.append(&mut vec![!d.eq("")]);
+        }
+        (names,data,options)
     }
     pub(crate) fn get_info(mut self) -> RenderData  where Self: Sized {
         let mut tmp = self.get_cpu_info();
