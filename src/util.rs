@@ -35,7 +35,9 @@ pub struct RenderData{
 
     pub(crate) max_ram:String,
     pub(crate) free_ram:String,
-    pub(crate) max_memory:String,
+
+    pub(crate) max_disc:String,
+    pub(crate) free_disc:String,
 }
 
 pub async fn get_distro(distro_name:&str)->Result<(),Error>{
@@ -50,6 +52,24 @@ pub async fn get_distro(distro_name:&str)->Result<(),Error>{
 
     Ok(())
 }
+
+pub fn convert_bytes(bytes:u64)->String{
+    match bytes {
+        b if b<=1_000_000 =>round_conversion(b,1_000,"kB"),
+        b if b<=1_000_000_000 =>round_conversion(b,1_000_000,"MB"),
+        b if b<=1_000_000_000_000 =>round_conversion(b,1_000_000_000,"GB"),
+        b if b<=1_000_000_000_000_000 =>round_conversion(b,1_000_000_000_000,"TB"),
+        _ => {bytes.to_string()}
+    }
+}
+pub fn round_conversion(number:u64,factor:u64,factor_name:&str) -> String{
+    let f_num = number as f64;
+    let fac_times_10 = (factor as f64)/10f64;
+    let mut str = (f64::round(f_num/fac_times_10)/10.).to_string();
+    str.push_str(factor_name);
+    str
+}
+
 impl RenderData{
     pub(crate) fn setup(mut self) -> RenderData  where Self: Sized {
         self.sys = System::new_all();
@@ -96,8 +116,8 @@ impl RenderData{
     pub(crate) fn get_memory_info(mut self)->RenderData where Self:Sized{
         self.sys.refresh_memory();
 
-        self.free_ram = self.sys.free_memory().to_string();
-        self.max_ram = self.sys.total_memory().to_string();
+        self.free_ram = convert_bytes(self.sys.free_memory());
+        self.max_ram = convert_bytes(self.sys.total_memory());
 
         self
     }
