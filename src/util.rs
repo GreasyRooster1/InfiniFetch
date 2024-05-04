@@ -45,7 +45,7 @@ pub async fn get_distro(distro_name:&str)->Result<(),Error>{
 impl RenderData{
     pub(crate) fn create_render_vecs(&self)->(Vec<&str>,Vec<&str>){
         let names = vec![
-            "Distro",
+            "Operating System",
             "CPU Name",
             "CPU Brand",
             "CPU Frequency",
