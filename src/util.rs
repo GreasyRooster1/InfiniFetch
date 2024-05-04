@@ -5,6 +5,7 @@ use sysinfo::{
     Components, Disks, Networks, System,
 };
 
+
 #[derive(Deserialize, Debug)]
 pub struct RawDistro {
     pub id: String,
@@ -21,6 +22,8 @@ pub struct RawDistro {
 #[derive(Default)]
 pub struct RenderData{
     //todo: gpu, ram, other specs
+    pub(crate) sys:System,
+
     pub(crate) icon_text:String,
 
     pub(crate) distro_name:String,
@@ -29,6 +32,10 @@ pub struct RenderData{
     pub(crate) cpu_frequency:String,
     pub(crate) cpu_brand:String,
     pub(crate) cpu_cores:String,
+
+    pub(crate) max_ram:String,
+    pub(crate) free_ram:String,
+    pub(crate) max_memory:String,
 }
 
 pub async fn get_distro(distro_name:&str)->Result<(),Error>{
@@ -44,6 +51,11 @@ pub async fn get_distro(distro_name:&str)->Result<(),Error>{
     Ok(())
 }
 impl RenderData{
+    pub(crate) fn setup(mut self) -> RenderData  where Self: Sized {
+        self.sys = System::new_all();
+        self.sys.refresh_all();
+        self
+    }
     pub(crate) fn create_render_vecs(&self)->(Vec<&str>,Vec<&str>){
         let names = vec![
             "Operating System",
@@ -51,6 +63,8 @@ impl RenderData{
             "CPU Brand",
             "CPU Frequency",
             "CPU Cores",
+            "RAM Usage",
+            "Total RAM"
         ];
         let data = vec![
             self.distro_name.as_str(),
@@ -58,16 +72,17 @@ impl RenderData{
             self.cpu_brand.as_str(),
             self.cpu_frequency.as_str(),
             self.cpu_cores.as_str(),
+            self.free_ram.as_str(),
+            self.max_ram.as_str(),
         ];
         (names,data)
     }
     pub(crate) fn get_cpu_info(mut self) -> RenderData  where Self: Sized {
-        let mut sys = System::new_all();
-        sys.refresh_all();
-        self.cpu_name = sys.cpus().first().unwrap().vendor_id().to_string();
-        self.cpu_brand = sys.cpus().first().unwrap().brand().to_string();
+        self.sys.refresh_all();
+        self.cpu_name = self.sys.cpus().first().unwrap().vendor_id().to_string();
+        self.cpu_brand = self.sys.cpus().first().unwrap().brand().to_string();
 
-        let freq = sys.cpus().first().unwrap().frequency() as f32;
+        let freq = self.sys.cpus().first().unwrap().frequency() as f32;
         if freq>1000f32{
             self.cpu_frequency = (freq/1000f32).to_string();
             self.cpu_frequency.push_str("GHz");
@@ -75,12 +90,15 @@ impl RenderData{
             self.cpu_frequency.push_str("MHz");
         }
 
-        self.cpu_cores = sys.physical_core_count().unwrap().to_string();
+        self.cpu_cores = self.sys.physical_core_count().unwrap().to_string();
         self
     }
-    // pub(crate) fn get_gpu_info(mut self)->RenderData where Self:Sized{
-    //     let mut sys = System::new_all();
-    //     sys.refresh_all();
-    //     r
-    // }
+    pub(crate) fn get_memory_info(mut self)->RenderData where Self:Sized{
+        self.sys.refresh_memory();
+
+        self.free_ram = self.sys.free_memory().to_string();
+        self.max_ram = self.sys.total_memory().to_string();
+
+        self
+    }
 }

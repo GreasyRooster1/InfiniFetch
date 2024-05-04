@@ -23,7 +23,9 @@ pub fn handle_windows()->RenderData{
     };
 
     let mut render_data:RenderData = Default::default();
+    render_data = render_data.setup();
     render_data.distro_name = format!("Windows {}",windows.version);
     render_data = render_data.get_cpu_info();
+    render_data = render_data.get_memory_info();
     return render_data
 }

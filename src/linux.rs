@@ -9,5 +9,10 @@ pub fn handle_linux()->RenderData{
     let distro_name = name_line.replace("DISTRIB_ID=","");
 
     let mut render_data:RenderData = Default::default();
-    render_data.get_cpu_info()
+    render_data.distro_name = distro_name;
+    render_data = render_data.setup();
+    render_data = render_data.get_cpu_info();
+    render_data = render_data.get_memory_info();
+
+    render_data
 }
