@@ -3,7 +3,7 @@ use std::ptr::null;
 use reqwest::Error;
 use serde::Deserialize;
 use sysinfo::{Components, Disk, Disks, Networks, System};
-use machine_info::GraphicCard;
+use machine_info::{GraphicCard, Machine};
 
 
 #[derive(Deserialize, Debug)]
@@ -39,6 +39,9 @@ pub struct RenderData{
     pub(crate) max_disc:String,
     pub(crate) free_disc:String,
     pub(crate) disc_amount:String,
+
+    pub(crate) gpu_name:String,
+    pub(crate) gpu_memory:String,
 }
 
 pub async fn get_distro(distro_name:&str)->Result<(),Error>{
@@ -83,33 +86,46 @@ impl RenderData{
     pub(crate) fn create_render_vecs(&self)->(Vec<&str>,Vec<&str>){
         let names = vec![
             "Operating System",
+
             "CPU Name",
             "CPU Brand",
             "CPU Frequency",
             "CPU Cores",
+
             "RAM Usage",
             "RAM Total",
+
             "Disc Amount",
             "Disc Total",
             "Disc Free",
+
+            "GPU Name",
+            "GPU Memory",
         ];
         let data = vec![
             self.distro_name.as_str(),
+
             self.cpu_name.as_str(),
             self.cpu_brand.as_str(),
             self.cpu_frequency.as_str(),
             self.cpu_cores.as_str(),
+
             self.free_ram.as_str(),
             self.max_ram.as_str(),
+
             self.disc_amount.as_str(),
             self.max_disc.as_str(),
             self.free_disc.as_str(),
+
+            self.gpu_name.as_str(),
+            self.gpu_memory.as_str(),
         ];
         (names,data)
     }
     pub(crate) fn get_info(mut self) -> RenderData  where Self: Sized {
         let mut tmp = self.get_cpu_info();
         tmp = tmp.get_memory_info();
+        tmp = tmp.get_gpu_info();
 
         tmp
     }
@@ -150,6 +166,24 @@ impl RenderData{
             free_space+=disc.available_space();
         }
         self.free_disc = convert_bytes(free_space);
+
+        self
+    }
+
+    pub fn get_gpu_info(mut self)->RenderData where Self:Sized{
+        let mut m = Machine::new();
+        let mut si = m.system_info();
+        match si.graphics.first() {
+            None => {
+                self.gpu_name = "".to_string();
+                self.gpu_memory = "".to_string();
+            }
+            Some(gpu) => {
+                self.gpu_name = gpu.name.to_string();
+                self.gpu_memory = convert_bytes(gpu.memory);
+            }
+        }
+
 
         self
     }
