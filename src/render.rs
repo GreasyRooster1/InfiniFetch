@@ -27,5 +27,6 @@ pub fn render_line(line:i32,prefix:&str,data: &str){
 }
 
 pub fn get_icon_line(line:i32)->String{
+    //render icon
     " ".repeat(ICON_SIZE as usize)
 }
