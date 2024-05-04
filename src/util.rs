@@ -28,6 +28,7 @@ pub struct RenderData{
     pub(crate) cpu_name:String,
     pub(crate) cpu_frequency:String,
     pub(crate) cpu_brand:String,
+    pub(crate) cpu_cores:String,
 }
 
 pub async fn get_distro(distro_name:&str)->Result<(),Error>{
@@ -49,12 +50,14 @@ impl RenderData{
             "CPU Name",
             "CPU Brand",
             "CPU Frequency",
+            "CPU Cores",
         ];
         let data = vec![
             self.distro_name.as_str(),
             self.cpu_name.as_str(),
             self.cpu_brand.as_str(),
             self.cpu_frequency.as_str(),
+            self.cpu_cores.as_str(),
         ];
         (names,data)
     }
@@ -72,6 +75,12 @@ impl RenderData{
             self.cpu_frequency.push_str("MHz");
         }
 
+        self.cpu_cores = sys.physical_core_count().unwrap().to_string();
         self
     }
+    // pub(crate) fn get_gpu_info(mut self)->RenderData where Self:Sized{
+    //     let mut sys = System::new_all();
+    //     sys.refresh_all();
+    //     r
+    // }
 }
