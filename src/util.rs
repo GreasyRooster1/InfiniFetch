@@ -26,7 +26,7 @@ pub struct RenderData{
     pub(crate) distro_name:String,
 
     pub(crate) cpu_name:String,
-    pub(crate) cpu_speed:String,
+    pub(crate) cpu_frequency:String,
     pub(crate) cpu_brand:String,
 }
 
@@ -43,12 +43,35 @@ pub async fn get_distro(distro_name:&str)->Result<(),Error>{
     Ok(())
 }
 impl RenderData{
+    pub(crate) fn create_render_vecs(&self)->(Vec<&str>,Vec<&str>){
+        let names = vec![
+            "Distro",
+            "CPU Name",
+            "CPU Brand",
+            "CPU Frequency",
+        ];
+        let data = vec![
+            self.distro_name.as_str(),
+            self.cpu_name.as_str(),
+            self.cpu_brand.as_str(),
+            self.cpu_frequency.as_str(),
+        ];
+        (names,data)
+    }
     pub(crate) fn get_cpu_info(mut self) -> RenderData  where Self: Sized {
         let mut sys = System::new_all();
         sys.refresh_all();
-        self.cpu_speed = sys.cpus().first().unwrap().frequency().to_string();
         self.cpu_name = sys.cpus().first().unwrap().vendor_id().to_string();
         self.cpu_brand = sys.cpus().first().unwrap().brand().to_string();
+
+        let freq = sys.cpus().first().unwrap().frequency() as f32;
+        if freq>1000f32{
+            self.cpu_frequency = (freq/1000f32).to_string();
+            self.cpu_frequency.push_str("GHz");
+        }else{
+            self.cpu_frequency.push_str("MHz");
+        }
+
         self
     }
 }

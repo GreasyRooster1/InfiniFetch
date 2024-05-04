@@ -3,8 +3,7 @@ use inline_colorization::*;
 
 const ICON_SIZE:i32 = 32;
 pub fn render(data:RenderData){
-    let data_lines = vec![data.distro_name.as_str()];
-    let prefix_lines = vec!["Distro"];
+    let (prefix_lines,data_lines) = data.create_render_vecs();
     for i in 0..ICON_SIZE as usize{
         if i >= data_lines.len() {
             continue;
