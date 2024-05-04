@@ -1,9 +1,9 @@
+use std::ops::Add;
 use std::ptr::null;
 use reqwest::Error;
 use serde::Deserialize;
-use sysinfo::{
-    Components, Disks, Networks, System,
-};
+use sysinfo::{Components, Disk, Disks, Networks, System};
+use machine_info::GraphicCard;
 
 
 #[derive(Deserialize, Debug)]
@@ -38,6 +38,7 @@ pub struct RenderData{
 
     pub(crate) max_disc:String,
     pub(crate) free_disc:String,
+    pub(crate) disc_amount:String,
 }
 
 pub async fn get_distro(distro_name:&str)->Result<(),Error>{
@@ -55,10 +56,13 @@ pub async fn get_distro(distro_name:&str)->Result<(),Error>{
 
 pub fn convert_bytes(bytes:u64)->String{
     match bytes {
+        b if b<=1_000 =>round_conversion(b,1," bytes"),
         b if b<=1_000_000 =>round_conversion(b,1_000,"kB"),
         b if b<=1_000_000_000 =>round_conversion(b,1_000_000,"MB"),
         b if b<=1_000_000_000_000 =>round_conversion(b,1_000_000_000,"GB"),
         b if b<=1_000_000_000_000_000 =>round_conversion(b,1_000_000_000_000,"TB"),
+        b if b<=1_000_000_000_000_000_000 =>round_conversion(b,1_000_000_000_000_000,"PB"),
+        //honestly if you have more than this you need help lmao
         _ => {bytes.to_string()}
     }
 }
@@ -84,7 +88,10 @@ impl RenderData{
             "CPU Frequency",
             "CPU Cores",
             "RAM Usage",
-            "Total RAM"
+            "RAM Total",
+            "Disc Amount",
+            "Disc Total",
+            "Disc Free",
         ];
         let data = vec![
             self.distro_name.as_str(),
@@ -94,6 +101,9 @@ impl RenderData{
             self.cpu_cores.as_str(),
             self.free_ram.as_str(),
             self.max_ram.as_str(),
+            self.disc_amount.as_str(),
+            self.max_disc.as_str(),
+            self.free_disc.as_str(),
         ];
         (names,data)
     }
@@ -124,6 +134,22 @@ impl RenderData{
 
         self.free_ram = convert_bytes(self.sys.free_memory());
         self.max_ram = convert_bytes(self.sys.total_memory());
+
+        let disks = Disks::new_with_refreshed_list();
+
+        let mut total_space = 0;
+        self.disc_amount = disks.len().to_string();
+
+        for disc in disks.iter() {
+            total_space+=disc.total_space();
+        }
+        self.max_disc = convert_bytes(total_space);
+
+        let mut free_space = 0;
+        for disc in disks.iter() {
+            free_space+=disc.available_space();
+        }
+        self.free_disc = convert_bytes(free_space);
 
         self
     }
