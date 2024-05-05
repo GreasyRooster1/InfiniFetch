@@ -1,4 +1,5 @@
 use std::fs;
+use crate::render::render;
 use crate::RenderData;
 
 pub fn handle_linux()->RenderData{
@@ -12,6 +13,7 @@ pub fn handle_linux()->RenderData{
     render_data.distro_name = distro_name;
     render_data = render_data.setup();
     render_data = render_data.get_info();
+    render_data = render_data.get_image_linux();
 
     render_data
 }

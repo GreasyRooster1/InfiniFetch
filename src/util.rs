@@ -1,9 +1,13 @@
+use std::io::Write;
 use std::ops::Add;
 use std::ptr::null;
 use reqwest::Error;
 use serde::Deserialize;
 use sysinfo::{Components, Disk, Disks, Networks, System};
 use machine_info::{GraphicCard, Machine};
+use tokio::runtime::Handle;
+use image::{io::Reader as ImageReader,DynamicImage};
+use image_ascii::TextGenerator;
 
 
 #[derive(Deserialize, Debug)]
@@ -23,7 +27,7 @@ pub struct RawDistro {
 pub struct RenderData{
     pub(crate) sys:System,
 
-    pub(crate) icon_text:String,
+    pub(crate) icon_text:Vec<String>,
 
     pub(crate) distro_name:String,
 
@@ -43,17 +47,25 @@ pub struct RenderData{
     pub(crate) gpu_memory:String,
 }
 
-pub async fn get_distro(distro_name:&str)->Result<(),Error>{
-    let request_url = format!("https://distro-api.up.railway.app/distribution?identifier={0}",distro_name);
+pub async fn get_distro(distro_name: String) ->RawDistro{
+    let request_url = format!("https://distro-api.up.railway.app/distribution?identifier={0}",distro_name.to_lowercase().replace(" ","_"));
     println!("requesting from {}", request_url);
 
-    let response = reqwest::get(&request_url).await?;
+    let response = reqwest::get(&request_url).await.unwrap();
 
-    let raw_distro: RawDistro = response.json().await?;
+    let raw_distro = response.json().await.unwrap();
 
-    println!("{:?}", raw_distro);
+    raw_distro
+}
 
-    Ok(())
+pub async fn download_image(url:String){
+    let mut file = std::fs::File::create("image.png").unwrap();
+    println!("requesting from {}", url);
+
+    let response = reqwest::get(&url).await.unwrap();
+
+    let bytes = response.bytes().await.unwrap();
+    file.write_all(&*bytes).unwrap();
 }
 
 pub fn convert_bytes(bytes:u64)->String{
@@ -187,6 +199,24 @@ impl RenderData{
             }
         }
 
+
+        self
+    }
+    pub fn get_image_linux(mut self) ->RenderData where Self:Sized{
+
+        let handle = Handle::current();
+        let _ = handle.enter();
+        let raw_distro = futures::executor::block_on(get_distro(self.distro_name.clone()));
+        println!("{}", raw_distro.image_path);
+        futures::executor::block_on( download_image(raw_distro.image_path));
+
+        let image = ImageReader::open("image.png")
+            .unwrap()
+            .decode()
+            .unwrap();
+
+        let result: String = TextGenerator::new(&image).generate();
+        println!("{}", result);
 
         self
     }
