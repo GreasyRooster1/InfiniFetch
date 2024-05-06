@@ -204,7 +204,6 @@ impl RenderData{
         self
     }
     pub fn get_image_linux(mut self) ->RenderData where Self:Sized{
-
         let handle = Handle::current();
         let _ = handle.enter();
         let raw_distro = futures::executor::block_on(get_distro(self.distro_name.clone()));
@@ -222,7 +221,10 @@ impl RenderData{
             .set_density_chars(&[' ','.','*','o','#'])
             .unwrap()
             .generate();
-        println!("{}", result);
+
+        for line in result.split("\n"){
+            self.icon_text.append(&mut vec![line.to_string()]);
+        }
 
         self
     }
