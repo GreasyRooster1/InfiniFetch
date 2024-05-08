@@ -6,7 +6,7 @@ use serde::Deserialize;
 use sysinfo::{Components, Disk, Disks, Networks, System};
 use machine_info::{GraphicCard, Machine};
 use tokio::runtime::Handle;
-use image::{io::Reader as ImageReader,DynamicImage};
+use image::{io::Reader as ImageReader, DynamicImage, GenericImageView};
 use image::imageops::FilterType;
 use rascii_art::{render_image, render_image_to, render_to, RenderOptions};
 
@@ -67,6 +67,10 @@ pub async fn download_image(url:String){
 
     let bytes = response.bytes().await.unwrap();
     file.write_all(&*bytes).unwrap();
+}
+
+pub fn get_luma(r:u8,g:u8,b:u8)->f32{
+    return 0.299*(r as f32) + 0.587*(g as f32) + 0.114*(b as f32);
 }
 
 pub fn convert_bytes(bytes:u64)->String{
@@ -216,6 +220,8 @@ impl RenderData{
             .unwrap()
             .decode()
             .unwrap();
+        let top_pixel = image.get_pixel(1,1).0;
+        let invert = get_luma(top_pixel[0],top_pixel[0],top_pixel[0]) > 190f32;
 
         render_image_to(
             &image,
@@ -223,11 +229,13 @@ impl RenderData{
             &RenderOptions::new()
                 .width(64)
                 .colored(true)
-                .charset(&[".", ",", "*", "/", "?", "£", "$", "#"]),
+                .charset(&[".", ",", "*", "/", "?", "£", "#"])
+                .invert(invert),
         ).unwrap();
 
         for line in buffer.split("\n"){
-            self.icon_text.append(&mut vec![line.to_string()]);
+            let res = line.to_string().replace("."," ");
+            self.icon_text.append(&mut vec![res]);
         }
 
         self
