@@ -20,7 +20,7 @@ pub fn handle_linux()->RenderData{
 
 pub fn handle_linux_test_case()->RenderData{
     let mut render_data:RenderData = Default::default();
-    render_data.distro_name = "CensorNet".parse().unwrap();
+    render_data.distro_name = "Mutagenix".parse().unwrap();
     render_data = render_data.setup();
     render_data = render_data.get_info();
     render_data = render_data.get_image_linux();

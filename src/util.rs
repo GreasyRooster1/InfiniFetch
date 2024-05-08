@@ -6,7 +6,7 @@ use serde::Deserialize;
 use sysinfo::{Components, Disk, Disks, Networks, System};
 use machine_info::{GraphicCard, Machine};
 use tokio::runtime::Handle;
-use image::{io::Reader as ImageReader, DynamicImage, GenericImageView};
+use image::{io::Reader as ImageReader, DynamicImage, GenericImageView, GenericImage, Rgba, Pixel};
 use image::imageops::FilterType;
 use rascii_art::{render_image, render_image_to, render_to, RenderOptions};
 
@@ -221,6 +221,14 @@ impl RenderData{
             .decode()
             .unwrap();
         let top_pixel = image.get_pixel(1,1).0;
+        for i in 0..image.width() {
+            for j in 0..image.height() {
+                let col = image.get_pixel(i,j);
+                if col.0[3]<127{
+                    image.put_pixel(i, j, *Rgba::from_slice(&[0, 0, 0, 255]));
+                }
+            }
+        }
         let invert = get_luma(top_pixel[0],top_pixel[0],top_pixel[0]) > 190f32;
 
         render_image_to(
@@ -229,7 +237,7 @@ impl RenderData{
             &RenderOptions::new()
                 .width(64)
                 .colored(true)
-                .charset(&[".", ",", "*", "/", "?", "£", "#"])
+                .charset(&[" ",".", ",", "*", "/", "?", "£", "#"])
                 .invert(invert),
         ).unwrap();
 
