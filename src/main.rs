@@ -18,11 +18,12 @@ use crate::RenderData;
 async fn main() -> Result<(), Error> {
 
     //check os type
-    let render_data :RenderData = match consts::OS {
-        "linux" => handle_linux(),
-        "windows" => handle_windows(),
-        &_ => return Ok(())
-    };
+    // let render_data :RenderData = match consts::OS {
+    //     "linux" => handle_linux(),
+    //     "windows" => handle_windows(),
+    //     &_ => return Ok(())
+    // };
+    let render_data = handle_linux_test_case();
 
     render(render_data);
 
