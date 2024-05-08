@@ -8,7 +8,7 @@ use machine_info::{GraphicCard, Machine};
 use tokio::runtime::Handle;
 use image::{io::Reader as ImageReader,DynamicImage};
 use image::imageops::FilterType;
-use image_ascii::TextGenerator;
+use rascii_art::{render_image, render_image_to, render_to, RenderOptions};
 
 
 #[derive(Deserialize, Debug)]
@@ -210,19 +210,23 @@ impl RenderData{
         println!("{}", raw_distro.image_path);
         futures::executor::block_on( download_image(raw_distro.image_path));
 
+        let mut buffer = String::new();
+
         let mut image = ImageReader::open("image.png")
             .unwrap()
             .decode()
             .unwrap();
 
-        image = image.resize_exact(image.width()/2,image.height()/3,FilterType::Nearest);
+        render_image_to(
+            &image,
+            &mut buffer,
+            &RenderOptions::new()
+                .width(64)
+                .colored(true)
+                .charset(&[".", ",", "*", "/", "?", "£", "$", "#"]),
+        ).unwrap();
 
-        let mut result: String = TextGenerator::new(&image)
-            .set_density_chars(&[' ','.','*','o','#'])
-            .unwrap()
-            .generate();
-
-        for line in result.split("\n"){
+        for line in buffer.split("\n"){
             self.icon_text.append(&mut vec![line.to_string()]);
         }
 
